@@ -1,0 +1,25 @@
+{
+  "name": "proxy_server",
+  "version": "1.0.0",
+  "description": "For Proxy server",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prathameshnadhe/Proxy_Server.git"
+  },
+  "author": "Prathamesh Nadhe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prathameshnadhe/Proxy_Server/issues"
+  },
+  "homepage": "https://github.com/prathameshnadhe/Proxy_Server#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemon": "^3.1.2",
+    "request": "^2.88.2"
+  }
+}
