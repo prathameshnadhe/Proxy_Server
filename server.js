@@ -1,6 +1,7 @@
 const express = require("express");
 const request = require("request");
 const app = express();
+const axios = require("axios");
 const PORT = process.env.PORT || 5000;
 
 // Middleware to set CORS headers
@@ -43,7 +44,31 @@ app.get("/restaurants", (req, res) => {
   });
 });
 
+// Endpoint to fetch the menu for a specific restaurant
+app.get("/restaurant/:restaurantId", async (req, res) => {
+  const { restaurantId } = req.params;
+  const lat = "18.5162434"; // Replace with actual latitude if needed
+  const lng = "73.8428574"; // Replace with actual longitude if needed
 
+  const swiggyUrl = `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=${lat}&lng=${lng}&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`;
+
+  const options = {
+    url: swiggyUrl,
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      Accept: "application/json",
+      Origin: "https://www.swiggy.com",
+    },
+  };
+
+  try {
+    const response = await axios.get(swiggyUrl, { headers: options.headers });
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send("Error occurred while fetching restaurant menu");
+  }
+});
 
 // Start the server
 app.listen(PORT, () => {
