@@ -147,7 +147,7 @@ router.get("/restaurantSearch", async (req, res) => {
   }
 });
 
-// Swiggy's Proxy endpoint to search the Restaurant/Menu
+// Swiggy's Proxy endpoint to search the Search Restaurant/Menu
 router.get("/allRestaurantSearch", async (req, res) => {
   const { str } = req.query;
   const lat = "18.5162434";
@@ -174,13 +174,11 @@ router.get("/allRestaurantSearch", async (req, res) => {
   }
 });
 
-// Swiggy's Proxy endpoint to search the Restaurant/Menu
+// Swiggy's Proxy endpoint for recommended Restaurants
 router.get("/recommendedDishRestoList/:collectionId", async (req, res) => {
   const { collectionId } = req.params;
   const lat = "18.5162434";
   const lng = "73.8428574";
-
-  console.log(collectionId);
 
   const swiggyUrl = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&collection=${collectionId}&sortBy=&filters=&type=rcv2&offset=0&page_type=null
 `;
@@ -201,6 +199,67 @@ router.get("/recommendedDishRestoList/:collectionId", async (req, res) => {
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(500).send("Error occurred while fetching restaurant menu");
+  }
+});
+
+// Swiggy's Proxy endpoint to infinite scroll for recommended Restaurants
+router.get("/recommendedDishRestoListUpdate", async (req, res) => {
+  const nextOffset = req.query.offset || "CJhlELQ4KICQ4IWS1ZmFNzCnEzgC";
+  const index = req.query.index || "12";
+  const collectionId = req.query.collectionId;
+  const tags = req.query.tags;
+
+  console.log(index);
+
+  const cookie =
+    "__SW=3ey9qDDNkbrYJ79el6TiWoMYJ5k5ldek; _device_id=2f6f2f0f-11c1-fe31-e71c-922060a09607; _ot=REGULAR; deliveryAddressId=138114441; userLocation={%22lat%22:18.5165436%2C%22lng%22:73.8366021%2C%22address%22:%22Deccan%20Gymkhana%2C%20Pune%2C%20Maharashtra%20411004%2C%20India%22%2C%22area%22:%22%22%2C%22showUserDefaultAddressHint%22:false}; fontsLoaded=1; _guest_tid=5bd337da-a671-4118-8546-b72f1497fdf2; _sid=fxv2fb11-6ee5-4ad8-b279-c4909268c5b0";
+
+  const apiUrl =
+    "https://www.swiggy.com/dapi/restaurants/list/update?lat=18.5162434&lng=73.8428574&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING";
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        Accept: "application/json",
+        Origin: "https://www.swiggy.com",
+        "Content-Type": "application/json",
+        Cookie: cookie,
+      },
+      body: JSON.stringify({
+        lat: 18.5162434,
+        lng: 73.8428574,
+        nextOffset: nextOffset,
+        collection: collectionId,
+        tags: tags,
+        sortBy: "",
+        filters: "",
+        type: "rcv2",
+        widgetOffset: {
+          restaurantCountWidget: "",
+          collectionV5RestaurantListWidget_SimRestoRelevance_food: index,
+          collectionV5RestaurantListWidget: index,
+          inlineFacetFilter: "",
+          collectionV5MastheadWidget: "",
+        },
+        page_type: "DESKTOP_WEB_LISTING",
+        _csrf: "d96dV2fENBPc-04M3DDEN7XoBTJQaHosJgYxgx6Y",
+      }),
+    });
+
+    if (!response.ok) {
+      return res
+        .status(response.status)
+        .send("Error occurred: " + response.statusText);
+    }
+
+    const data = await response.json();
+    res.send(data);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("An error occurred while fetching data");
   }
 });
 
