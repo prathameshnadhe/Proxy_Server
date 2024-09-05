@@ -174,4 +174,34 @@ router.get("/allRestaurantSearch", async (req, res) => {
   }
 });
 
+// Swiggy's Proxy endpoint to search the Restaurant/Menu
+router.get("/recommendedDishRestoList/:collectionId", async (req, res) => {
+  const { collectionId } = req.params;
+  const lat = "18.5162434";
+  const lng = "73.8428574";
+
+  console.log(collectionId);
+
+  const swiggyUrl = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=${lat}&lng=${lng}&collection=${collectionId}&sortBy=&filters=&type=rcv2&offset=0&page_type=null
+`;
+
+  const options = {
+    url: swiggyUrl,
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      Accept: "application/json",
+      Origin: "https://www.swiggy.com",
+    },
+  };
+
+  try {
+    const response = await axios.get(swiggyUrl, { headers: options.headers });
+    res.send(response.data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).send("Error occurred while fetching restaurant menu");
+  }
+});
+
 module.exports = router;
